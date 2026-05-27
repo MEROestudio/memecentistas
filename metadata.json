@@ -1,0 +1,6 @@
+{
+  "name": "Instagram Metrics Reporter",
+  "description": "Generador de reportes profesionales de Instagram. Analiza imágenes de estadísticas, datos manuales y genera diagnósticos estratégicos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
