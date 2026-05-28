@@ -224,7 +224,9 @@ export default function App() {
 
   const copyToClipboard = () => {
     const baseUri = window.location.origin + window.location.pathname;
-    const clientUrl = `${baseUri}?mode=client`;
+    // Convierte el enlace privado de sandbox de desarrollo en el enlace público compartido de cliente
+    const publicUri = baseUri.replace('ais-dev-', 'ais-pre-');
+    const clientUrl = `${publicUri}?mode=client`;
     navigator.clipboard.writeText(clientUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
