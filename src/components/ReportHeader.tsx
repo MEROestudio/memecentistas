@@ -6,6 +6,7 @@ interface ReportHeaderProps {
   report: InstagramReport;
   onUpdateField: (field: string, value: any) => void;
   availableThemes: { name: string; class: string; hex: string }[];
+  isClientMode?: boolean;
 }
 
 const VerifiedBadge = () => (
@@ -21,7 +22,8 @@ const VerifiedBadge = () => (
 export default function ReportHeader({
   report,
   onUpdateField,
-  availableThemes
+  availableThemes,
+  isClientMode = false
 }: ReportHeaderProps) {
   const isMemecentistas = report.accountHandle?.toLowerCase() === 'memecentistas' || report.accountName?.toLowerCase().includes('memecentistas');
 
@@ -107,37 +109,39 @@ export default function ReportHeader({
       </div>
 
       {/* Quick configuration: Theme & Style (hidden on print) */}
-      <div className="flex flex-wrap gap-4 items-center print:hidden border-t xl:border-t-0 border-white/10 pt-4 xl:pt-0 w-full xl:w-auto shrink-0">
-        {/* Style Selector */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] uppercase tracking-wider text-slate-400 font-mono font-bold">Estilo del Reporte</label>
-          <select
-            value={report.reportStyle}
-            onChange={(e) => onUpdateField('reportStyle', e.target.value)}
-            className="text-xs bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-400"
-          >
-            <option value="classic">Clásico Corporativo</option>
-            <option value="modern">Moderno Minimalista</option>
-            <option value="creative">Creativo "Memecentista"</option>
-          </select>
-        </div>
+      {!isClientMode && (
+        <div className="flex flex-wrap gap-4 items-center print:hidden border-t xl:border-t-0 border-white/10 pt-4 xl:pt-0 w-full xl:w-auto shrink-0">
+          {/* Style Selector */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-mono font-bold">Estilo del Reporte</label>
+            <select
+              value={report.reportStyle}
+              onChange={(e) => onUpdateField('reportStyle', e.target.value)}
+              className="text-xs bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-400"
+            >
+              <option value="classic">Clásico Corporativo</option>
+              <option value="modern">Moderno Minimalista</option>
+              <option value="creative">Creativo "Memecentista"</option>
+            </select>
+          </div>
 
-        {/* Color Theme Selector */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] uppercase tracking-wider text-slate-400 font-mono font-bold">Paleta de Color</label>
-          <div className="flex gap-2">
-            {availableThemes.map((theme) => (
-              <button
-                key={theme.name}
-                onClick={() => onUpdateField('themeColor', theme.hex)}
-                style={{ backgroundColor: theme.hex }}
-                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${report.themeColor === theme.hex ? 'border-white scale-105 shadow-glow' : 'border-transparent'}`}
-                title={`Tema ${theme.name}`}
-              />
-            ))}
+          {/* Color Theme Selector */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] uppercase tracking-wider text-slate-400 font-mono font-bold">Paleta de Color</label>
+            <div className="flex gap-2">
+              {availableThemes.map((theme) => (
+                <button
+                  key={theme.name}
+                  onClick={() => onUpdateField('themeColor', theme.hex)}
+                  style={{ backgroundColor: theme.hex }}
+                  className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${report.themeColor === theme.hex ? 'border-white scale-105 shadow-glow' : 'border-transparent'}`}
+                  title={`Tema ${theme.name}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

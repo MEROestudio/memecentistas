@@ -8,6 +8,7 @@ interface PostsTableProps {
   onAddPost: () => void;
   onEditPost: (post: InstagramPost) => void;
   onDeletePost: (id: string) => void;
+  isClientMode?: boolean;
 }
 
 export default function PostsTable({
@@ -15,7 +16,8 @@ export default function PostsTable({
   followersCount,
   onAddPost,
   onEditPost,
-  onDeletePost
+  onDeletePost,
+  isClientMode = false
 }: PostsTableProps) {
   // Helper to calculate engagement
   const getPostEngagement = (post: InstagramPost) => {
@@ -44,12 +46,14 @@ export default function PostsTable({
           <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Posts con Mayor Rendimiento</h4>
           <p className="text-xs text-slate-400 mt-1">Lista de las mejores publicaciones del periodo con cálculo de tasa de interacción.</p>
         </div>
-        <button
-          onClick={onAddPost}
-          className="flex items-center gap-2 text-xs bg-slate-900 text-white font-medium px-3.5 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" /> Agregar Post
-        </button>
+        {!isClientMode && (
+          <button
+            onClick={onAddPost}
+            className="flex items-center gap-2 text-xs bg-slate-900 text-white font-medium px-3.5 py-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Agregar Post
+          </button>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -62,7 +66,7 @@ export default function PostsTable({
               <th className="py-3 px-2 font-normal text-right">Compart.</th>
               <th className="py-3 px-2 font-normal text-right">Guard.</th>
               <th className="py-3 px-3 font-normal text-center">Engagement %</th>
-              <th className="py-3 px-4 font-normal text-right">Acciones</th>
+              {!isClientMode && <th className="py-3 px-4 font-normal text-right">Acciones</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50 text-sm">
@@ -129,22 +133,24 @@ export default function PostsTable({
                     </td>
 
                     {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => onEditPost(post)}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => onDeletePost(post.id)}
-                          className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"
-                        >
-                          <Trash className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
+                    {!isClientMode && (
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => onEditPost(post)}
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => onDeletePost(post.id)}
+                            className="p-1 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"
+                          >
+                            <Trash className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })

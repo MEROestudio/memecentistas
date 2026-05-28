@@ -166,7 +166,14 @@ export default function App() {
     }
   });
 
-  const [aiAnalysis, setAiAnalysis] = useState<any | undefined>(INITIAL_AI_ANALYSIS);
+   const [aiAnalysis, setAiAnalysis] = useState<any | undefined>(INITIAL_AI_ANALYSIS);
+  const [isClientMode, setIsClientMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get('mode') === 'client' || searchParams.get('client') === 'true';
+    }
+    return false;
+  });
   const [isEditingMetrics, setIsEditingMetrics] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
@@ -174,7 +181,9 @@ export default function App() {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const baseUri = window.location.origin + window.location.pathname;
+    const clientUrl = `${baseUri}?mode=client`;
+    navigator.clipboard.writeText(clientUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -445,13 +454,33 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={resetToDefaults}
-              className="px-3 py-1.5 border border-slate-100 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            >
-              Restablecer Valores
-            </button>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Mode Switcher */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setIsClientMode(false)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-tight transition-all ${!isClientMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              >
+                Modo Creador
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsClientMode(true)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-tight transition-all ${isClientMode ? 'bg-white text-[#991b1b] shadow-sm' : 'text-slate-500 hover:text-[#991b1b]'}`}
+              >
+                Vista Cliente
+              </button>
+            </div>
+
+            {!isClientMode && (
+              <button
+                onClick={resetToDefaults}
+                className="px-3 py-1.5 border border-slate-100 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Restablecer Valores
+              </button>
+            )}
             <button
               onClick={handlePrint}
               className="px-3.5 py-1.5 bg-slate-950 text-white hover:bg-slate-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
@@ -463,7 +492,7 @@ export default function App() {
             <button
               onClick={copyToClipboard}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${copied ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-              title="Copiar enlace directo al portapapeles para enviar a cualquier persona"
+              title="Copiar enlace directo al portapapeles con vista limpia para el cliente"
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Link className="w-3.5 h-3.5" />}
               <span>{copied ? '¡Enlace Copiado!' : 'Copiar Enlace Público'}</span>
@@ -484,37 +513,39 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 md:px-6 mt-6 md:mt-8 space-y-6">
         
         {/* 2. INSTAGRAM TUTORIAL GUIDE WIDGET (Renders nicely in Spanish answering what materials to upload) */}
-        <section className="bg-[#fdfcfa] border border-[#f0ebe3] rounded-xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row gap-5 items-start print:hidden">
-          <div className="p-3 bg-amber-50 text-amber-900 rounded-xl shrink-0 mt-1">
-            <BookOpen className="w-6 h-6" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="text-base font-bold text-amber-950 font-sans">Guía de Materiales: ¿Cómo armar tu Reporte Profesional?</h2>
-            <p className="text-xs text-amber-900/85 leading-relaxed max-w-4xl">
-              ¡Hola Tian! Para presentar un reporte de nivel directivo para <strong>@memecentistas</strong>, necesitas recopilar ciertas estadísticas clave que Instagram da en su aplicación móvil. Aquí tienes la lista de lo que puedes subir o escribir en el sistema para que Gemini arme el reporte completo:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-[#f0ebe3] pt-3.5 mt-2">
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-amber-950 block">1. Capturas del Panel (Insights)</span>
-                <p className="text-[11px] text-slate-600 leading-normal">
-                  Saca screenshot en tu celular de las secciones de **Cuentas Alcanzadas**, **Interacción** y **Seguidores** de Instagram Insights de memecentistas. Súbelas en el área de escaneo de abajo para que la IA extraiga los números automáticamente.
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-amber-950 block">2. Publicaciones Top</span>
-                <p className="text-[11px] text-slate-600 leading-normal">
-                  Filtra tus mejores posts de los últimos 30 días. Añade tus caruseles o reels emblemáticos de historia del arte en la sección inferior de publicaciones con sus likes y saves para que la IA entienda el humor que mejor conecta.
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-amber-950 block">3. Canales de Enlace</span>
-                <p className="text-[11px] text-slate-600 leading-normal">
-                  Monitorea los clics que recibe tu Linktree en la sección de estadísticas para analizar la tasa de conversión. Toda esta información la estructurará Gemini en un PDF listo para imprimir o enviar.
-                </p>
+        {!isClientMode && (
+          <section className="bg-[#fdfcfa] border border-[#f0ebe3] rounded-xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row gap-5 items-start print:hidden">
+            <div className="p-3 bg-amber-50 text-amber-900 rounded-xl shrink-0 mt-1">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-base font-bold text-amber-950 font-sans">Guía de Materiales: ¿Cómo armar tu Reporte Profesional?</h2>
+              <p className="text-xs text-amber-900/85 leading-relaxed max-w-4xl">
+                ¡Hola Tian! Para presentar un reporte de nivel directivo para <strong>@memecentistas</strong>, necesitas recopilar ciertas estadísticas clave que Instagram da en su aplicación móvil. Aquí tienes la lista de lo que puedes subir o escribir en el sistema para que Gemini arme el reporte completo:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-[#f0ebe3] pt-3.5 mt-2">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-amber-950 block">1. Capturas del Panel (Insights)</span>
+                  <p className="text-[11px] text-slate-600 leading-normal">
+                    Saca screenshot en tu celular de las secciones de **Cuentas Alcanzadas**, **Interacción** y **Seguidores** de Instagram Insights de memecentistas. Súbelas en el área de escaneo de abajo para que la IA extraiga los números automáticamente.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-amber-950 block">2. Publicaciones Top</span>
+                  <p className="text-[11px] text-slate-600 leading-normal">
+                    Filtra tus mejores posts de los últimos 30 días. Añade tus caruseles o reels emblemáticos de historia del arte en la sección inferior de publicaciones con sus likes y saves para que la IA entienda el humor que mejor conecta.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-amber-950 block">3. Canales de Enlace</span>
+                  <p className="text-[11px] text-slate-600 leading-normal">
+                    Monitorea los clics que recibe tu Linktree en la sección de estadísticas para analizar la tasa de conversión. Toda esta información la estructurará Gemini en un PDF listo para imprimir o enviar.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {systemError && (
           <div className="p-4 bg-rose-50 border border-rose-100 text-rose-800 rounded-xl text-xs flex items-center gap-2">
@@ -529,7 +560,8 @@ export default function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
           {/* LEFT COLUMN: Data Configurations, Screenshot Scan, Form Editing */}
-          <div className="space-y-6 print:hidden">
+          {!isClientMode && (
+            <div className="space-y-6 print:hidden">
             
             {/* Account Settings */}
             <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
@@ -729,15 +761,17 @@ export default function App() {
               )}
             </div>
           </div>
+        )}
 
           {/* RIGHT / MAIN CONTENT: Header block, Metrics boxes, Demographic graphs, Posts listing, and Strategic AI analysis output */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className={`${isClientMode ? 'lg:col-span-3' : 'lg:col-span-2'} space-y-6`}>
             
             {/* Report Header block */}
             <ReportHeader 
               report={report} 
               onUpdateField={handleUpdateField} 
               availableThemes={THEMES} 
+              isClientMode={isClientMode}
             />
 
             {/* Quick Summary Numbers */}
@@ -815,6 +849,7 @@ export default function App() {
               onAddPost={handleOpenAddPost}
               onEditPost={handleOpenEditPost}
               onDeletePost={handleDeletePost}
+              isClientMode={isClientMode}
             />
 
             {/* Brand Landmarks / Case Studies Showcase (Portfolio Deck Integration) */}
