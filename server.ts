@@ -70,7 +70,7 @@ En "summaryText", escribe una breve explicación en español sobre lo que pudist
               type: Type.STRING, 
               description: "Tipo de datos: 'profile' (info de biografía y seguidores), 'overall' (alcance, seguidores, visitas), 'demographic' (público, edad, país), 'posts' (publicaciones e interacciones), o 'unknown'" 
             },
-            accountName: { type: Type.STRING, description: "Nombre de la cuenta de Instagram, ej: MEMECENTISTAS® o MemeCentistas" },
+            accountName: { type: Type.STRING, description: "Nombre de la cuenta de Instagram, ej: MEMECENTISTAS® o MEMECENTISTAS" },
             accountHandle: { type: Type.STRING, description: "Handle o usuario de Instagram, ej: memecentistas" },
             bio: { type: Type.STRING, description: "Biografía completa del perfil, ej: Museo Nacional del Meme y del Perreo..." },
             postsCount: { type: Type.INTEGER, description: "Frecuencia o total de publicaciones, ej: 871" },

@@ -440,7 +440,7 @@ export default function App() {
               <Instagram className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-bold text-slate-900 tracking-tight block">MemeCentistas Studio</span>
+              <span className="font-bold text-slate-900 tracking-tight block">MEMECENTISTAS</span>
               <span className="text-[10px] text-slate-400 font-mono">REPORTE DE ESTADÍSTICAS PROFESIONAL</span>
             </div>
           </div>
@@ -546,7 +546,7 @@ export default function App() {
                     value={report.accountName}
                     onChange={(e) => handleUpdateField('accountName', e.target.value)}
                     className="w-full text-xs bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-slate-700 font-sans focus:outline-none focus:border-indigo-400"
-                    placeholder="Ej. MemeCentistas"
+                    placeholder="Ej. MEMECENTISTAS"
                   />
                 </div>
 
