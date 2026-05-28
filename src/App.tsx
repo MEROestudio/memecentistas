@@ -23,7 +23,9 @@ import {
   AlertCircle,
   Printer,
   Link,
-  Check
+  Check,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { InstagramReport, InstagramPost, InstagramMetrics, Demographics, AIAnalysisResult } from './types';
@@ -166,14 +168,54 @@ export default function App() {
     }
   });
 
-   const [aiAnalysis, setAiAnalysis] = useState<any | undefined>(INITIAL_AI_ANALYSIS);
+  const [aiAnalysis, setAiAnalysis] = useState<any | undefined>(INITIAL_AI_ANALYSIS);
   const [isClientMode, setIsClientMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get('mode') === 'client' || searchParams.get('client') === 'true';
+      if (searchParams.get('mode') === 'client' || searchParams.get('client') === 'true') {
+        return true;
+      }
+      const unlocked = localStorage.getItem('creator_unlocked') === 'true';
+      return !unlocked;
     }
-    return false;
+    return true;
   });
+
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleSwitchToCreator = () => {
+    const isUnlocked = typeof window !== 'undefined' && localStorage.getItem('creator_unlocked') === 'true';
+    if (isUnlocked) {
+      setIsClientMode(false);
+    } else {
+      setShowPasswordDialog(true);
+      setPasswordInput('');
+      setPasswordError('');
+    }
+  };
+
+  const handleVerifyPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === 'PerreoViolento') {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('creator_unlocked', 'true');
+      }
+      setIsClientMode(false);
+      setShowPasswordDialog(false);
+      setPasswordError('');
+    } else {
+      setPasswordError('Clave incorrecta. Inténtalo de nuevo.');
+    }
+  };
+
+  const handleLockCreator = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('creator_unlocked');
+    }
+    setIsClientMode(true);
+  };
   const [isEditingMetrics, setIsEditingMetrics] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
@@ -459,8 +501,9 @@ export default function App() {
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
               <button
                 type="button"
-                onClick={() => setIsClientMode(false)}
+                onClick={handleSwitchToCreator}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-tight transition-all ${!isClientMode ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                title="Acceder con clave de Creador"
               >
                 Modo Creador
               </button>
@@ -468,10 +511,23 @@ export default function App() {
                 type="button"
                 onClick={() => setIsClientMode(true)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold tracking-tight transition-all ${isClientMode ? 'bg-white text-[#991b1b] shadow-sm' : 'text-slate-500 hover:text-[#991b1b]'}`}
+                title="Vista limpia recomendada para compartir con clientes"
               >
                 Vista Cliente
               </button>
             </div>
+
+            {/* Lock session button: allows logging out/re-locking editing permissions on this browser */}
+            {typeof window !== 'undefined' && localStorage.getItem('creator_unlocked') === 'true' && (
+              <button
+                type="button"
+                onClick={handleLockCreator}
+                className="p-2 border border-slate-150 rounded-lg text-slate-400 hover:text-red-700 hover:bg-neutral-50 transition-all flex items-center justify-center"
+                title="Bloquear edición de Creador (Cerrar sesión)"
+              >
+                <Lock className="w-3.5 h-3.5" />
+              </button>
+            )}
 
             {!isClientMode && (
               <button
@@ -989,6 +1045,72 @@ export default function App() {
         onClose={() => setIsPrintModalOpen(false)}
         appUrl={window.location.href}
       />
+
+      {/* 5. PASSCODE VALIDATION MODAL FOR CREATOR ACCESS */}
+      {showPasswordDialog && (
+        <div className="fixed inset-0 bg-slate-900/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white border border-slate-100 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+          >
+            <div className="p-6 border-b border-slate-50 flex flex-col items-center text-center space-y-3">
+              <div className="p-3.5 bg-red-50 text-[#991b1b] rounded-full">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-slate-900 font-sans tracking-tight">
+                  Acceso a Modo Creador
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
+                  Ingresa la clave correspondiente para activar la edición de estadísticas, screenshots corporativos y temas.
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleVerifyPassword} className="p-6 space-y-4">
+              <div>
+                <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1.5 font-mono">
+                  Clave de Acceso
+                </label>
+                <input
+                  type="password"
+                  required
+                  autoFocus
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    if (passwordError) setPasswordError('');
+                  }}
+                  className={`w-full text-sm px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none transition-colors font-mono tracking-widest text-center ${passwordError ? 'border-red-300 focus:border-red-500 bg-red-50/10' : 'border-slate-150 focus:border-indigo-400'}`}
+                  placeholder="••••••••••••"
+                />
+                {passwordError && (
+                  <p className="text-[11px] text-red-600 font-medium mt-1.5 text-center flex items-center justify-center gap-1">
+                    <span>⚠️</span> {passwordError}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordDialog(false)}
+                  className="w-1/2 py-2.5 text-xs border border-slate-150 rounded-xl text-slate-600 font-semibold hover:bg-slate-50 active:scale-[0.98] transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="w-1/2 py-2.5 text-xs bg-slate-910 hover:bg-slate-800 text-white rounded-xl font-bold active:scale-[0.98] bg-slate-950 transition-all shadow-sm"
+                >
+                  Verificar Clave
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
